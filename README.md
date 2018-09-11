@@ -2,7 +2,7 @@
 
 #### installation
 
-copy the contents of this file into a folder in your 2.1 addon folder
+copy the files from this repo into a folder in your 2.1 addon folder
 
 #### general
 
