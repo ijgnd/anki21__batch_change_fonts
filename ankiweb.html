@@ -1,0 +1,20 @@
+This description only refers to the version for Anki 2.1. Don't download for the old Anki version 2.0.
+
+This add-on offers:
+- in the Fields Dialog where you manage the fields for a note type this add-on adds Up and Down buttons: You no longer have to enter the new index of a field, you just click up/down.
+<img src="https://raw.githubusercontent.com/ijgnd/anki21__batch_change_fonts/master/screenshots/batch_change_fonts.png"> 
+- batch change fonts for ...
+  - ... all fields for current note (from fields window)
+  - ... all fields for all notes (from main window)
+  - ... some fields in the table in the Browser (from main window). You usually set this per note with the <a href="https://apps.ankiweb.net/docs/manual.html#cards-and-templates" rel="nofollow">Browser Appearance</a>
+
+Use at your own risk. So far it works for me. 
+
+<b>compatibility to other add-ons or newer Anki versions</b>
+This add-on overwrites "FieldDialog.__init__". It's not compatible with any other add-on that overwrites the same function. So in 2019-11 it's not compatible with Arthur Milchior's <a href="https://ankiweb.net/shared/info/777545149" rel="nofollow">3 add-ons merged: quicker anki, explain deletion, explain database check</a> and <a href="https://ankiweb.net/shared/info/802285486" rel="nofollow">Adding note and changing note type become quicker</a>. If Anki ever changes "FieldDialog.__init__" this add-on might cause weird issues. In 2019-11 this function was last changed <a href="https://github.com/dae/anki/blame/master/aqt/fields.py" rel="nofollow">in 2012</a>.
+
+<b>alternatives</b>
+Have a look at glutanimate's <a href="https://ankiweb.net/shared/info/1215991469" rel="nofollow">Customize Editor Stylesheet</a> which offers more flexible styling options for the editor.
+
+<b>bugs, etc.</b>
+Feedback, improvements, and error reports are welcome. It's best to post these in <a href="https://github.com/ijgnd/anki21__batch_change_fonts/issues" rel="nofollow">my github repo</a> or send me a message via reddit (/u/ijgnord/) where I can respond multiple times. 
