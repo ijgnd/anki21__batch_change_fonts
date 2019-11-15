@@ -1,16 +1,32 @@
-# -*- coding: utf-8 -*-
-# # - License: AGPLv3
+"""
+Add-on for Anki 2.1
+Copyright: Ankitects Pty Ltd and contributors
+           ijgnd
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+"""
 
 import aqt
-from aqt import mw
+from anki.lang import _
 from aqt.qt import *
 from aqt.fields import FieldDialog
-from aqt.utils import tooltip, askUser
+from aqt.utils import (
+    askUser,
+    tooltip,
+)
 
-from PyQt5 import QtCore, QtGui
-from PyQt5.QtWidgets import QPushButton, QHBoxLayout, QToolButton
-
-from . import dialog
+from .forms import dialog
 
 
 class Batch_Fonts_Dialog(QDialog):
@@ -18,26 +34,26 @@ class Batch_Fonts_Dialog(QDialog):
         parent = aqt.mw.app.activeWindow()
         QDialog.__init__(self, parent=parent)
         self.setWindowModality(Qt.WindowModal)
-        self.bfonts = dialog.Ui_Dialog()  
+        self.bfonts = dialog.Ui_Dialog()
         self.bfonts.setupUi(self)
 
 
-#change all fonts of current note type from editor window
+# change all fonts of current note type from editor window
 def onAllFonts(self):
-    m=Batch_Fonts_Dialog()
+    m = Batch_Fonts_Dialog()
     m.setWindowTitle("Anki Set Fonts For All Fields Of This Note")
-    #load current values into window
+    # load current values into window
     fld = self.model['flds'][self.currentIdx]
     m.bfonts.fontComboBox.setCurrentFont(QFont(fld['font']))
     m.bfonts.spinBox.setValue(fld['size'])
-    if m.exec_():  # this is True if dialog is 'accepted, False otherwise  https://stackoverflow.com/a/11553456
+    if m.exec():
         font = m.bfonts.fontComboBox.currentFont().family()
         size = m.bfonts.spinBox.value()
         for i in range(len(self.model['flds'])):
             fld = self.model['flds'][i]
             fld['font'] = font
             fld['size'] = size
-        #reload for current value, adjusted from loadField
+        # reload for current value, adjusted from loadField
         fld = self.model['flds'][self.currentIdx]
         f = self.form
         f.fontFamily.setCurrentFont(QFont(fld['font']))
@@ -47,7 +63,11 @@ def onAllFonts(self):
 FieldDialog.onAllFonts = onAllFonts
 
 
-#overwrite/monkey patch function from aqt/fields.py
+# overwrite/monkey patch function from aqt/fields.py
+# wrapping doesn't make sense: __init__ends with exec which
+# wait until window is closed. So I can't wrap my function
+# so that it is run after __init__. Wrapping so that it runs
+# before doesn't help much either.
 def __init__(self, mw, note, ord=0, parent=None):
     QDialog.__init__(self, parent or mw) #, Qt.Window)
     self.mw = mw
@@ -60,8 +80,8 @@ def __init__(self, mw, note, ord=0, parent=None):
     self.form = aqt.forms.fields.Ui_Dialog()
     self.form.setupUi(self)
 
-    ####start of my mod
-    #up/down
+    # # # # start of my mod
+    # up/down
     self.form.udbox = QHBoxLayout()
     layout = self.form.udbox
 
@@ -78,13 +98,12 @@ def __init__(self, mw, note, ord=0, parent=None):
     layout.addWidget(bd)
 
     self.form.verticalLayout_3.addLayout(self.form.udbox)
-
-
-    #self.form.setupUi(self) muss davor sein, sonst sind ja attribute noch nicht vergeben
     self.form.allfonts = QPushButton(self)
     self.form.allfonts.setText("AllFonts")
     self.form.allfonts.clicked.connect(self.onAllFonts)
     self.form.verticalLayout_3.addWidget(self.form.allfonts)
+
+    # # # # end of my mod
 
     self.setWindowTitle(_("Fields for %s") % self.model['name'])
     self.form.buttonBox.button(QDialogButtonBox.Help).setAutoDefault(False)
@@ -98,11 +117,11 @@ def __init__(self, mw, note, ord=0, parent=None):
 FieldDialog.__init__ = __init__
 
 
-#minimal modification of onPosition(self, delta=-1):
+# minimal modification of onPosition(self, delta=-1):
 def onMove(self, direction):
     idx = self.currentIdx
-    try: 
-        pos = idx + direction    #check if idx is None
+    try:
+        pos = idx + direction   # check if idx is None
     except:
         return
     else:
@@ -119,64 +138,65 @@ def onMove(self, direction):
 FieldDialog.onMove = onMove
 
 
+question = ("Do you really want to set the fonts \n"
+            "%s to the font: \n"
+            "     %s   \n"
+            "and this size: \n"
+            "     %s")
 
-#change for all note types from menu
+
+# change for all note types from menu
 def batch_change_fonts_all_fields_all_notes():
-    m=Batch_Fonts_Dialog()
+    m = Batch_Fonts_Dialog()
     m.setWindowTitle("Anki Set Fonts For All Fields Of ALL Notes")
-    #load current values into window
+    # load current values into window
     try:
         m.bfonts.fontComboBox.setCurrentFont("Arial")
         m.bfonts.spinBox.setValue(fld['size'])
     except:
         pass
-    if m.exec_():  # this is True if dialog is 'accepted, False otherwise  https://stackoverflow.com/a/11553456
-        font = m.bfonts.fontComboBox.currentFont().family()
-        size = m.bfonts.spinBox.value()
-        if askUser("Do you really want to set the fonts for \n" \
-                    "ALL fields of ALL notes to the font: \n" \
-                    + '    ' + str(font) + '\n' \
-                    + 'and this size: \n' \
-                    + '    ' + str(size)):
-            for m in mw.col.models.all():
+    if m.exec():
+        f = m.bfonts.fontComboBox.currentFont().family()
+        s = m.bfonts.spinBox.value()
+        if askUser(question % ("for ALL fields of ALL notes", str(f), str(s))):
+            for m in aqt.mw.col.models.all():
                 for f in m['flds']:
-                    f['font'] = font
+                    f['font'] = str(f)
                 for f in m['flds']:
-                    f['size'] = size
-            mw.col.models.save(m)
+                    f['size'] = int(s)
+            aqt.mw.col.models.save(m)
             tooltip('Done')
 
 
-batch_font_action = QAction("Batch change fonts on all fields all notes", mw)
-batch_font_action.triggered.connect(batch_change_fonts_all_fields_all_notes)
-mw.form.menuTools.addAction(batch_font_action) 
-
-
-
-#change for all note types from menu
-def batch_browser_change_fonts_all_fields_all_notes():
-    m=Batch_Fonts_Dialog()
-    m.setWindowTitle("Anki Set Fonts for all cards in BROWSER")
-    #load current values into window
+# change for all note types from menu
+def batch_browser_change_display_fonts():
+    m = Batch_Fonts_Dialog()
+    m.setWindowTitle("Anki Set Fonts used in BROWSER table")
+    # load current values into window
     try:
         m.bfonts.fontComboBox.setCurrentFont("Arial")
         m.bfonts.spinBox.setValue(fld['size'])
     except:
         pass
-    if m.exec_():  # this is True if dialog is 'accepted, False otherwise  https://stackoverflow.com/a/11553456
-        font = m.bfonts.fontComboBox.currentFont().family()
-        size = m.bfonts.spinBox.value()
-        if askUser("Do you really want to set the fonts for \n" \
-                    "for all cards in BROWSER to the font: \n" \
-                    + '    ' + str(font) + '\n' \
-                    + 'and this size: \n' \
-                    + '    ' + str(size)):
-            for m in mw.col.models.all():
+    if m.exec():
+        f = m.bfonts.fontComboBox.currentFont().family()
+        s = m.bfonts.spinBox.value()
+        if askUser(question % ("that is used in Browser table for all cards", str(f), str(s))):
+            for m in aqt.mw.col.models.all():
                 for c in m['tmpls']:
-                    c['bfont'] = font
-                    c['bsize'] = size
-            mw.col.models.save(m)
+                    c['bfont'] = str(f)
+                    c['bsize'] = int(s)
+            aqt.mw.col.models.save(m)
             tooltip('Done')
-batch_browser_font_action = QAction("Batch change fonts for all cards in BROWSER", mw)
-batch_browser_font_action.triggered.connect(batch_browser_change_fonts_all_fields_all_notes)
-mw.form.menuTools.addAction(batch_browser_font_action)
+
+
+bfm = QMenu("Batch change fonts", aqt.mw)
+aqt.mw.form.menuTools.addMenu(bfm)
+
+abf = QAction("... on all fields all notes", aqt.mw)
+abf.triggered.connect(batch_change_fonts_all_fields_all_notes)
+bfm.addAction(abf)
+
+abf_browser = QAction("... for all cards in BROWSER", aqt.mw)
+abf_browser.triggered.connect(batch_browser_change_display_fonts)
+bfm.addAction(abf_browser)
