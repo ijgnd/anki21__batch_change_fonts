@@ -145,10 +145,10 @@ question = ("Do you really want to set the fonts \n"
             "     %s")
 
 
-# change for all note types from menu
+# change all fields for all note types
 def batch_change_fonts_all_fields_all_notes():
     m = Batch_Fonts_Dialog()
-    m.setWindowTitle("Anki Set Fonts For All Fields Of ALL Notes")
+    m.setWindowTitle("Anki Set Fonts For All Fields Of ALL Notes (in the editor)")
     # load current values into window
     try:
         m.bfonts.fontComboBox.setCurrentFont("Arial")
@@ -158,20 +158,20 @@ def batch_change_fonts_all_fields_all_notes():
     if m.exec():
         f = m.bfonts.fontComboBox.currentFont().family()
         s = m.bfonts.spinBox.value()
-        if askUser(question % ("for ALL fields of ALL notes", str(f), str(s))):
+        if askUser(question % ("for all fields of all notes (in the editor)", str(f), str(s))):
             for m in aqt.mw.col.models.all():
-                for f in m['flds']:
-                    f['font'] = str(f)
-                for f in m['flds']:
-                    f['size'] = int(s)
-            aqt.mw.col.models.save(m)
+                for c in m['flds']:
+                    c['font'] = str(f)
+                    c['size'] = int(s)
+                aqt.mw.col.models.save(m)
+            aqt.mw.col.models.flush()
             tooltip('Done')
 
 
-# change for all note types from menu
+# change Browser Appearance for all note types
 def batch_browser_change_display_fonts():
     m = Batch_Fonts_Dialog()
-    m.setWindowTitle("Anki Set Fonts used in BROWSER table")
+    m.setWindowTitle("Anki Set Fonts used in BROWSER table (Browser Appearance)")
     # load current values into window
     try:
         m.bfonts.fontComboBox.setCurrentFont("Arial")
@@ -186,17 +186,17 @@ def batch_browser_change_display_fonts():
                 for c in m['tmpls']:
                     c['bfont'] = str(f)
                     c['bsize'] = int(s)
-            aqt.mw.col.models.save(m)
+                aqt.mw.col.models.save(m)
             tooltip('Done')
 
 
 bfm = QMenu("Batch change fonts", aqt.mw)
 aqt.mw.form.menuTools.addMenu(bfm)
 
-abf = QAction("... on all fields all notes", aqt.mw)
+abf = QAction("... for all fields of all notes (in the editor)", aqt.mw)
 abf.triggered.connect(batch_change_fonts_all_fields_all_notes)
 bfm.addAction(abf)
 
-abf_browser = QAction("... for all cards in BROWSER", aqt.mw)
+abf_browser = QAction("... for Browser Appearance", aqt.mw)
 abf_browser.triggered.connect(batch_browser_change_display_fonts)
 bfm.addAction(abf_browser)
