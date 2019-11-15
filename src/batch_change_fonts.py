@@ -187,6 +187,7 @@ def batch_browser_change_display_fonts():
                     c['bfont'] = str(f)
                     c['bsize'] = int(s)
                 aqt.mw.col.models.save(m)
+            aqt.mw.col.models.flush()
             tooltip('Done')
 
 
