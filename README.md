@@ -1,13 +1,5 @@
-### anki21__batch_change_fonts
+addon for Anki 2.1
 
-#### installation
+for details see, [ankiweb](https://ankiweb.net/shared/info/1479177943).
 
-copy the files from this repo into a folder in your 2.1 addon folder
-
-#### general
-
-- experimental. use at your own risk
-
-#### license
-
-agplv3
+License: see src/LICENSE.
