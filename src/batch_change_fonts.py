@@ -188,7 +188,19 @@ def batch_browser_change_display_fonts():
                     c['bsize'] = int(s)
                 aqt.mw.col.models.save(m)
             aqt.mw.col.models.flush()
-            tooltip('Done')
+            tooltip('Done.')
+
+
+def batch_browser_reset_to_default():
+    if askUser("Reset fonts for Browser Appearance for all templates?"):
+        for m in aqt.mw.col.models.all():
+            for c in m['tmpls']:
+                c.pop("bfont", None)
+                c.pop("bsize", None)
+            aqt.mw.col.models.save(m)
+        aqt.mw.col.models.flush()
+        tooltip('Reset fonts for Browser Appearance for all cards.')
+
 
 
 bfm = QMenu("Batch change fonts", aqt.mw)
@@ -200,4 +212,8 @@ bfm.addAction(abf)
 
 abf_browser = QAction("... for Browser Appearance", aqt.mw)
 abf_browser.triggered.connect(batch_browser_change_display_fonts)
+bfm.addAction(abf_browser)
+
+abf_browser = QAction("... Browser Appearance - reset to default", aqt.mw)
+abf_browser.triggered.connect(batch_browser_reset_to_default)
 bfm.addAction(abf_browser)
